@@ -1,0 +1,36 @@
+infer_config {
+  unique_id: ${UNIQUE_ID}
+  max_batch_size: ${MAX_BATCH_SIZE}
+
+  backend {
+    triton {
+      model_name: "${MODEL_NAME}"
+      version: ${MODEL_VERSION}
+      grpc {
+        url: "${GRPC_URL}"
+        enable_cuda_buffer_sharing: true
+      }
+    }
+    inputs  { name: "${INPUT_TENSOR}" }
+    output_mem_type: MEMORY_TYPE_CPU
+  }
+
+  preprocess {
+    network_format: IMAGE_FORMAT_RGB
+    tensor_order: TENSOR_ORDER_LINEAR
+    maintain_aspect_ratio: 0
+    tensor_name: "${INPUT_TENSOR}"
+  }
+
+  postprocess { other {} }
+
+  extra { copy_input_to_host_buffers: false }
+}
+
+input_control {
+  process_mode: PROCESS_MODE_FULL_FRAME
+}
+
+output_control {
+  output_tensor_meta: true
+}

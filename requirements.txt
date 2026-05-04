@@ -1,0 +1,19 @@
+# Project dependencies for VisionSentry
+# Install inside the DeepStream 8.0 Docker image:
+#   pip install -r requirements.txt
+#
+# NOTE: GStreamer, pyds, and DeepStream itself come pre-installed in the
+# official NVIDIA DeepStream Docker image — do NOT install them via pip.
+
+# ── Computer Vision / ML ──────────────────────────────────────────────────
+opencv-python>=4.8.0
+numpy>=1.24.0
+torch>=2.0.0
+torchvision>=0.15.0
+
+# ── Data / config ─────────────────────────────────────────────────────────
+pyyaml>=6.0
+python-dotenv>=1.0.0
+
+# ── Logging ───────────────────────────────────────────────────────────────
+structlog>=23.0.0
