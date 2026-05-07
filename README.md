@@ -657,29 +657,11 @@ python main.py --log-level DEBUG
 
 ---
 
-## Contributing
 
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Support & Community
-
-- **Issues**: Report bugs on [GitHub Issues](https://github.com/yourusername/visionsentry/issues)
-- **Discussions**: Join our [GitHub Discussions](https://github.com/yourusername/visionsentry/discussions)
-- **Documentation**: More details at [VisionSentry Wiki](https://github.com/yourusername/visionsentry/wiki)
 
 ---
 
