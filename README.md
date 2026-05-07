@@ -11,7 +11,7 @@ VisionSentry TheftGuard is a state-of-the-art surveillance system designed to de
 The pipeline processes RTSP streams through a sophisticated **Dual-Gate** architecture with real-time AI inference:
 
 ```mermaid
-graph LR
+graph TD
     subgraph "Input"
         RTSP["RTSP Sources<br/>(Multi-Stream)"]
     end
@@ -49,17 +49,17 @@ graph LR
     SAVE --> DB
     DB --> RAG
     
-    style RTSP fill:#e1f5ff
-    style MUX fill:#fff3e0
-    style YOLO fill:#f3e5f5
-    style AE fill:#f3e5f5
-    style VLM fill:#e8f5e9
-    style CONV fill:#fff9c4
-    style OSD fill:#fff9c4
-    style DEMUX fill:#fff9c4
-    style SAVE fill:#fce4ec
-    style DB fill:#fce4ec
-    style RAG fill:#c8e6c9
+    style RTSP fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
+    style MUX fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    style YOLO fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    style AE fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    style VLM fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
+    style CONV fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style OSD fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style DEMUX fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
+    style SAVE fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    style DB fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    style RAG fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
 ```
 
 ### Pipeline Flow Details
