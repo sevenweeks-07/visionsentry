@@ -466,20 +466,6 @@ This launches an interactive TUI where you can ask questions like:
 
 ---
 
-## Performance Benchmarks
-
-| Component | Latency | Throughput | GPU Memory |
-|-----------|---------|-----------|-----------|
-| YOLO Detection | 8-12ms | 120+ FPS | 2-3GB |
-| Autoencoder | 2-4ms | 250+ FPS | 0.5GB |
-| VLM (TensorRT-LLM) | 200-300ms | 3-5 fps | 10-14GB |
-| Frame Save (JPEG) | 5-8ms | 150+ FPS | 0.2GB |
-| **Total Pipeline** | **~230ms** | **~4 fps (inference bottleneck)** | **13-17GB** |
-
-*Benchmarks on RTX 4090 with batch size 8, 640x480 resolution*
-
----
-
 ## Project Structure
 
 ```
