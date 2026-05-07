@@ -198,22 +198,25 @@ def extract_ae_score(frame_meta: Any, gie_id: int = 2) -> float:
                         lib.NvDsMetaType.NVDSINFER_TENSOR_OUTPUT_META):
                     tensor_meta = lib.NvDsInferTensorMeta.cast(user_meta.user_meta_data)
                     
-                    # Check if this meta comes from our Autoencoder GIE
+                    # Log IDs to debug if mismatch occurs
+                    # logger.info("Found tensor meta", gie_id=getattr(tensor_meta, "unique_id", -1))
+
                     if getattr(tensor_meta, "unique_id", -1) == gie_id:
-                        n_layers = getattr(tensor_meta, "num_output_layers", 0)
-                        if n_layers > 0 and hasattr(tensor_meta, "output_layers_info"):
-                            layer = tensor_meta.output_layers_info(0) # MSE is in the first (and only) layer
-                            if hasattr(layer, "buffer") and layer.buffer:
-                                # Get pointer to the float32 result
-                                PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
-                                PyCapsule_GetPointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
-                                PyCapsule_GetPointer.restype = ctypes.c_void_p
-                                addr = PyCapsule_GetPointer(ctypes.py_object(layer.buffer), None)
-                                if addr:
-                                    # Read 1 float (4 bytes)
-                                    raw_bytes = ctypes.string_at(addr, 4)
-                                    score = float(np.frombuffer(raw_bytes, dtype=np.float32)[0])
-                                    return score
+                        # Standard nvinfer meta access
+                        try:
+                            layer = lib.get_nvds_LayerInfo(tensor_meta, 0)
+                        except AttributeError:
+                            layer = tensor_meta.output_layers_info(0)
+
+                        if hasattr(layer, "buffer") and layer.buffer:
+                            PyCapsule_GetPointer = ctypes.pythonapi.PyCapsule_GetPointer
+                            PyCapsule_GetPointer.argtypes = [ctypes.py_object, ctypes.c_char_p]
+                            PyCapsule_GetPointer.restype = ctypes.c_void_p
+                            addr = PyCapsule_GetPointer(ctypes.py_object(layer.buffer), None)
+                            if addr:
+                                raw_bytes = ctypes.string_at(addr, 4)
+                                score = float(np.frombuffer(raw_bytes, dtype=np.float32)[0])
+                                return score
             except Exception:
                 pass
             finally:

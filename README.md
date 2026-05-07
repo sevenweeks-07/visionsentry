@@ -15,21 +15,21 @@ graph TD
     A[RTSP Stream] --> B[DeepStream Pipeline]
     B --> C{Dual Gate}
     
-    C -- "Person Detected (YOLOv11)" --> D[Capture Frame]
-    C -- "Anomaly Detected (Autoencoder)" --> D
+    C -->|Person Detected| D[Capture Frame]
+    C -->|Anomaly Detected| D
     
-    D --> E[VLM Analysis (Qwen2-VL)]
+    D --> E[VLM Analysis]
     E --> F[Generate Semantic Log]
     
     F --> G[(Qdrant Vector DB)]
     G --> H[RAG Retrieval TUI]
     
-    subgraph "Backend (Triton)"
-    E
+    subgraph "Backend"
+        E
     end
     
     subgraph "Storage"
-    G
+        G
     end
 ```
 
