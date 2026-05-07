@@ -1,0 +1,1 @@
+ffmpeg -re -stream_loop -1 -i person_video.mp4 -r 25 -c:v libx264 -preset veryfast -b:v 2M -c:a aac -f rtsp rtsp://localhost:8554/mystream

@@ -21,22 +21,32 @@ _DEFAULT_TEMPLATE = """\
 infer_config {
   unique_id: ${UNIQUE_ID}
   max_batch_size: ${MAX_BATCH_SIZE}
+  debug_level: 1
   backend {
     triton {
       model_name: "${MODEL_NAME}"
       version: ${MODEL_VERSION}
       grpc {
         url: "${GRPC_URL}"
-        enable_cuda_buffer_sharing: ${ENABLE_CUDA}
+        enable_cuda_buffer_sharing: true
       }
     }
-    inputs { name: "${INPUT_TENSOR}" }
+    inputs { 
+      name: "${INPUT_TENSOR}" 
+      # Set input to GPU memory to avoid CPU copies
+      input_mem_type: MEMORY_TYPE_GPU
+    }
+    outputs { name: "${OUTPUT_TENSOR}" }
     output_mem_type: MEMORY_TYPE_CPU
   }
   preprocess {
     network_format: IMAGE_FORMAT_RGB
     tensor_order: TENSOR_ORDER_LINEAR
     maintain_aspect_ratio: 0
+    normalize {
+      scale_factor: 1.0
+      channel_offsets: [0, 0, 0]
+    }
     tensor_name: "${INPUT_TENSOR}"
   }
   postprocess { other {} }
@@ -53,7 +63,7 @@ def generate_triton_config(
     model_version: int = -1,
     batch_size: int = 1,
     input_tensor: str = "image_input",
-    output_tensor: str = "text_output",
+    output_tensor: str = "text_bytes",
     cache_dir: str = PathCfg.DATA_TRITON_DIR,
     template_path: Optional[str] = PathCfg.TRITON_TEMPLATE,
 ) -> str:
@@ -78,7 +88,7 @@ def generate_triton_config(
         "MODEL_NAME": model_name,
         "MODEL_VERSION": model_version,
         "GRPC_URL": grpc_url,
-        "ENABLE_CUDA": "true",
+        "ENABLE_CUDA": "false",
         "INPUT_TENSOR": input_tensor,
         "OUTPUT_TENSOR": output_tensor,
     })

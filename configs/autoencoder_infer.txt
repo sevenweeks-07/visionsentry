@@ -1,0 +1,20 @@
+[property]
+gpu-id=0
+net-scale-factor=0.0039215697906911373
+model-color-format=0
+onnx-file=../models/autoencoder_mse.onnx
+model-engine-file=../models/autoencoder_mse.engine
+# Set it to FP16 for speed if your GPU supports it
+network-mode=2
+# Unique ID for the Autoencoder stage
+gie-unique-id=2
+# 100 = Other/Custom output
+network-type=100
+# Important: ensure input matches the exported ONNX
+infer-dims=3;128;128
+# We want the raw tensor (which contains the MSE float)
+output-tensor-meta=1
+batch-size=1
+
+[class-attrs-all]
+threshold=0.0

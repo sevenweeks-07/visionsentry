@@ -24,9 +24,10 @@ class MetadataWriter:
         frame_info: Dict[str, Any],
         detections: List[Dict[str, Any]],
         vlm_output: Optional[str] = None,
+        anomaly_score: Optional[float] = None,
     ) -> Optional[Path]:
         """Write metadata JSON; returns path on success, None on failure."""
-        if not self.enabled or not detections:
+        if not self.enabled:
             return None
 
         frame_num = frame_info.get("frame_number", 0)
@@ -41,10 +42,14 @@ class MetadataWriter:
         }
         if vlm_output:
             payload["vlm_output"] = vlm_output
+        if anomaly_score is not None:
+            payload["anomaly_score"] = anomaly_score
 
         out_path = stream_dir / f"frame_{frame_num:06d}_info.json"
         try:
             out_path.write_text(json.dumps(payload, indent=2))
+            logger.info("Metadata saved", path=str(out_path), 
+                        detections=len(detections), vlm=(vlm_output is not None))
             return out_path
         except Exception as exc:
             logger.error("MetadataWriter.write failed", error=str(exc),

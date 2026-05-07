@@ -2,7 +2,7 @@
 # ============================================================================
 # VisionSentry — Run pipeline inside DeepStream 8.0 Docker container
 # ============================================================================
-#
+# docker pull nvcr.io/nvidia/deepstream:8.0-triton-multiarch
 # Usage:
 #   ./run.sh [RTSP_URL] [VLM_ENDPOINT]
 #
@@ -16,7 +16,7 @@
 
 set -e
 
-RTSP_STREAM="${1:-rtsp://192.168.68.138:8554/cam0}"
+RTSP_STREAM="${1:-rtsp://localhost:8554/mystream}"
 VLM_ENDPOINT="${2:-0.0.0.0:8001}"
 
 echo "============================================="

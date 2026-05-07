@@ -72,7 +72,23 @@ class _ConvAutoencoder(nn.Module if _TORCH_AVAILABLE else object):  # type: igno
         )
 
     def forward(self, x):  # type: ignore[override]
-        return self.decoder(self.encoder(x))
+        recon = self.decoder(self.encoder(x))
+        # Compute MSE directly in the model for TensorRT efficiency
+        mse = torch.mean((recon - x) ** 2, dim=(1, 2, 3))
+        return mse
+
+
+class AutoencoderWithMSE(nn.Module if _TORCH_AVAILABLE else object):
+    """
+    Wrapper for ONNX/TensorRT export.
+    Returns a single float (MSE) per frame.
+    """
+    def __init__(self, model: _ConvAutoencoder):
+        super().__init__()
+        self.model = model
+
+    def forward(self, x):
+        return self.model(x)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -162,7 +178,63 @@ class AutoencoderGate:
         flagged = mse > state.threshold
         return flagged, mse
 
+    def process_tensor(
+        self,
+        stream_id: int,
+        tensor_rgba: torch.Tensor,
+    ) -> Tuple[bool, float]:
+        """Zero-copy version: processes a GPU tensor [H, W, 4] directly."""
+        if not _TORCH_AVAILABLE or self._model is None:
+            return True, 0.0
+
+        mse = self._compute_mse_gpu(tensor_rgba)
+        state = self._states[stream_id]
+
+        if state.is_calibrating:
+            state.update_calibration(mse)
+            return False, mse
+
+        flagged = mse > state.threshold
+        return flagged, mse
+
+    def process_score(
+        self,
+        stream_id: int,
+        mse: float,
+    ) -> Tuple[bool, float]:
+        """
+        Handle a score already calculated by the hardware (nvinfer).
+        Performs calibration and thresholding.
+        """
+        state = self._states[stream_id]
+        if state.is_calibrating:
+            state.update_calibration(mse)
+            return False, mse
+
+        flagged = mse > state.threshold
+        return flagged, mse
+
     # ----------------------------------------------------------------- private
+
+    @torch.no_grad()
+    def _compute_mse_gpu(self, tensor_rgba: torch.Tensor) -> float:
+        """
+        Resize and compute MSE on GPU.
+        tensor_rgba: [H, W, 4] (RGBA) on CUDA
+        """
+        # 1. Convert to RGB and Float [C, H, W]
+        # tensor_rgba is likely uint8 [H, W, 4]
+        x = tensor_rgba[..., :3].permute(2, 0, 1).float().div(255.0)
+        
+        # 2. Resize on GPU
+        import torch.nn.functional as F
+        x = x.unsqueeze(0) # [1, 3, H, W]
+        x = F.interpolate(x, size=(RESIZE_H, RESIZE_W), mode='bilinear', align_corners=False)
+        
+        # 3. Forward pass
+        recon = self._model(x)
+        mse = float(((recon - x) ** 2).mean().item())
+        return mse
 
     @torch.no_grad()
     def _compute_mse(self, frame_bgr: np.ndarray) -> float:

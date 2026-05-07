@@ -8,10 +8,11 @@ infer_config {
       version: ${MODEL_VERSION}
       grpc {
         url: "${GRPC_URL}"
-        enable_cuda_buffer_sharing: true
+        enable_cuda_buffer_sharing: false
       }
     }
     inputs  { name: "${INPUT_TENSOR}" }
+    outputs { name: "${OUTPUT_TENSOR}" }
     output_mem_type: MEMORY_TYPE_CPU
   }
 

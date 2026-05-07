@@ -25,6 +25,15 @@ class RTSPSource:
         """Create uridecodebin, add it to pipeline. Returns True on success."""
         try:
             self.element = make_uridecodebin(f"source-{self.stream_id}", self.uri)
+            
+            # Force TCP (interleaved) mode for stability in Docker
+            def _on_source_setup(bin_elem: Any, source: Any) -> None:
+                if source.get_factory().get_name() == "rtspsrc":
+                    # 4 = GST_RTSP_LOWER_TRANS_TCP
+                    source.set_property("protocols", 4)
+            
+            self.element.connect("source-setup", _on_source_setup)
+            
             pipeline.add(self.element)
             return True
         except Exception as exc:

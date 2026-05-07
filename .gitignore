@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data and Cache
+data/
+logs/
+qdrant_db/
+
+# Models and Weights
+models/
+*.onnx
+*.onnx.data
+*.pt
+*.engine
+
+# Binaries and large files
+mediamtx
+person_video.mp4
+tensorrtllm_backend/
+
+# External dependencies cloned at runtime
+DeepStream-Yolo/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

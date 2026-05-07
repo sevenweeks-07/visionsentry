@@ -97,8 +97,8 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Triton model version (default: latest)")
     p.add_argument("--vlm-input-tensor",  default="image_input",
                    help="Triton input tensor name (default: image_input)")
-    p.add_argument("--vlm-output-tensor", default="text_output",
-                   help="Triton output tensor name (default: text_output)")
+    p.add_argument("--vlm-output-tensor", default="text_bytes",
+                   help="Triton output tensor name (default: text_bytes)")
     p.add_argument("--vlm-infer-interval", type=int, default=25,
                    help="VLM throttle: send 1 frame every N frames (default: 25)")
 

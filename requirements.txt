@@ -7,7 +7,7 @@
 
 # ── Computer Vision / ML ──────────────────────────────────────────────────
 opencv-python>=4.8.0
-numpy>=1.24.0
+numpy>=1.24.0,<2.0.0
 torch>=2.0.0
 torchvision>=0.15.0
 
@@ -17,3 +17,8 @@ python-dotenv>=1.0.0
 
 # ── Logging ───────────────────────────────────────────────────────────────
 structlog>=23.0.0
+rich>=13.0.0
+
+# ── RAG / Retrieval ───────────────────────────────────────────────────────
+qdrant-client>=1.7.0
+sentence-transformers>=2.2.0

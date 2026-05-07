@@ -26,6 +26,7 @@ class DSConstants:
     ELEMENT_MULTIFILESINK: Final[str] = "multifilesink"
     ELEMENT_FAKESINK: Final[str] = "fakesink"
     ELEMENT_QUEUE: Final[str] = "queue"
+    ELEMENT_CAPSFILTER: Final[str] = "capsfilter"
 
     PROXY_ENV_VARS: Final[List[str]] = [
         "http_proxy", "https_proxy", "all_proxy",

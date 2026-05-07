@@ -14,7 +14,7 @@ model-color-format=0
 # ── Model files ─────────────────────────────────────────────────────────────
 # Update these paths to match your volume-mounted weights inside the container.
 onnx-file=/workspace/models/yolo11m_person.onnx
-#model-engine-file=/workspace/models/yolo11m_person_b1_fp16.engine
+model-engine-file=/workspace/models/yolo11m_person.engine
 labelfile-path=/workspace/models/coco_labels.txt
 
 # ── TensorRT / network ──────────────────────────────────────────────────────
