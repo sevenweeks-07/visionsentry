@@ -658,7 +658,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **TensorRT-LLM**: NVIDIA's optimized LLM inference engine
 - **Qdrant**: Vector database for semantic search
 - **Qwen2-VL**: Alibaba's advanced vision-language model
-- **Vast.ai**: For providing excellent compute power for an affordable cost
+- **Vast.ai**: For providing excellent compute power at an affordable cost
 
 ---
 
