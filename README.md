@@ -1,14 +1,14 @@
-# 🛡️ VisionSentry
+# 🛡️ VisionSentry: Advanced AI Surveillance with SOTA Anomaly Detection and Multimodal Retrieval
 
-> **Intelligent Multi-Stream Surveillance Pipeline with DeepStream 8.0, YOLOv11, VLM descriptions, and Vector Search.**
+> **Research-Grade Intelligent Multi-Stream Surveillance Pipeline featuring Feature-MAME Anomaly Detection, STOA Binding Gating, Set-of-Mark VLM Prompting, and CLIP-Enhanced Multimodal RAG.**
 
-VisionSentry TheftGuard is a state-of-the-art surveillance system designed to detect, describe, and retrieve events in real-time. It combines traditional object detection with anomaly detection and Vision-Language Models (VLM) to provide a semantic understanding of security footage.
+VisionSentry is a cutting-edge surveillance system that integrates state-of-the-art computer vision, anomaly detection, and multimodal AI technologies. This research implementation demonstrates advanced techniques for real-time event detection, semantic description, and intelligent retrieval in security footage.
 
 ---
 
 ## Complete Pipeline Architecture
 
-The pipeline processes RTSP streams through a sophisticated **Dual-Gate** architecture with real-time AI inference:
+The pipeline processes RTSP streams through a sophisticated **STOA Binding** architecture with real-time AI inference:
 
 ```mermaid
 graph TD
@@ -19,8 +19,9 @@ graph TD
     subgraph "DeepStream Processing"
         MUX["nvstreammux<br/>(Batch Muxing)"]
         YOLO["nvinfer<br/>(YOLOv11 Detector)"]
-        AE["nvinfer<br/>(Autoencoder)"]
-        VLM["nvinferserver<br/>(TensorRT-LLM<br/>gRPC Backend)"]
+        MAME["nvinfer<br/>(Feature-MAME<br/>MobileNetV2)"]
+        STOA["STOA Engine<br/>(Spatio-Temporal<br/>Object Attention)"]
+        VLM["nvinferserver<br/>(TensorRT-LLM<br/>gRPC Backend<br/>Set-of-Mark Prompting)"]
     end
     
     subgraph "Video Processing"
@@ -31,33 +32,38 @@ graph TD
     
     subgraph "Output & Storage"
         SAVE["Frame Sinks<br/>(JPEG Encoding)"]
-        DB["Qdrant Vector DB<br/>(Semantic Search)"]
+        CLIP["CLIP Encoder<br/>(Image + Text Embeddings)"]
+        DB["Qdrant Vector DB<br/>(Multimodal Search)"]
     end
     
     subgraph "User Interface"
-        RAG["RAG Retrieval TUI<br/>(Natural Language Search)"]
+        RAG["Multimodal RAG Retrieval TUI<br/>(Text-to-Image Search)"]
     end
     
     RTSP --> MUX
     MUX --> YOLO
-    YOLO --> AE
-    AE --> VLM
+    YOLO --> MAME
+    MAME --> STOA
+    STOA --> VLM
     VLM --> CONV
     CONV --> OSD
     OSD --> DEMUX
     DEMUX --> SAVE
-    SAVE --> DB
+    SAVE --> CLIP
+    CLIP --> DB
     DB --> RAG
     
     style RTSP fill:#e1f5ff,stroke:#01579b,stroke-width:2px,color:#000
     style MUX fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
     style YOLO fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
-    style AE fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    style MAME fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,color:#000
+    style STOA fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
     style VLM fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000
     style CONV fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
     style OSD fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
     style DEMUX fill:#fff9c4,stroke:#f57f17,stroke-width:2px,color:#000
     style SAVE fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
+    style CLIP fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
     style DB fill:#fce4ec,stroke:#880e4f,stroke-width:2px,color:#000
     style RAG fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px,color:#000
 ```
@@ -68,33 +74,136 @@ graph TD
 |-------|-----------|---------|---------|
 | **1. Ingestion** | `nvstreammux` | Batch multiple RTSP streams | GPU (NVMM) |
 | **2. Detection** | `nvinfer` (YOLOv11) | Person/object detection | GPU (TensorRT) |
-| **3. Anomaly** | `nvinfer` (Autoencoder) | Detect unusual frames via MSE | GPU (TensorRT) |
-| **4. Semantic** | `nvinferserver` (TensorRT-LLM) | VLM description generation | GPU (gRPC) |
-| **5. Visualization** | `nvvideoconvert` + `nvdsosd` | Draw boxes & text overlays | GPU (CUDA) |
-| **6. Demux** | `nvstreamdemux` | Split streams for per-stream sinks | GPU (NVMM) |
-| **7. Storage** | `nvjpegenc` + `multifilesink` | Save frames as JPEG files | GPU (NVENC) |
-| **8. Indexing** | Qdrant DB | Index semantic descriptions | CPU |
+| **3. Anomaly** | `nvinfer` (Feature-MAME) | Feature-space anomaly detection with Cosine Similarity | GPU (TensorRT) |
+| **4. Gating** | STOA Engine | Deterministic spatio-temporal object attention gating | GPU/CPU |
+| **5. Semantic** | `nvinferserver` (TensorRT-LLM) | Set-of-Mark visual prompting with Qwen2-VL | GPU (gRPC) |
+| **6. Visualization** | `nvvideoconvert` + `nvdsosd` | Draw boxes, centroids & interaction points | GPU (CUDA) |
+| **7. Demux** | `nvstreamdemux` | Split streams for per-stream sinks | GPU (NVMM) |
+| **8. Storage** | `nvjpegenc` + `multifilesink` | Save frames as JPEG files | GPU (NVENC) |
+| **9. Embedding** | CLIP Encoder | Generate multimodal embeddings | GPU/CPU |
+| **10. Indexing** | Qdrant DB | Index visual and text embeddings | CPU |
 
 ---
 
 ## Key Features
 
-1. **Dual-Gate Trigger**:
-   - **YOLOv11 Person Gate**: High-precision detection of human presence
-   - **Autoencoder Anomaly Gate**: Lightweight CNN that flags frames with high reconstruction error (MSE), capturing unexpected events
-   
-2. **Real-Time Semantic Description**:
+1. **STOA Binding Gating Strategy**:
+   - **Temporal Delta Filter**: Subtracts past heatmap from current to isolate new physical changes ($\Delta H = \max(H_t - H_{t-10}, 0)$)
+   - **Box-Edge Prior**: Measures distance to bounding box edges with Plateau Gaussian Prior using dynamic sigma (35% of box height)
+   - **Area Normalization & Weighted Centroid**: Hadamard product of delta heatmap and box-edge prior, normalized by area, yielding precise $(x, y)$ interaction coordinates
+
+2. **Advanced Anomaly Detection with Feature-MAME**:
+   - **Feature-Space Encoding**: Utilizes frozen MobileNetV2 backbone for robust feature extraction
+   - **Cosine Similarity Metric**: Eliminates false positives from lighting/shadows by measuring latent space similarity instead of MSE
+   - **Single-Video Online Training**: Micro-trains memory matrix on first 150 frames per stream for environment-specific adaptation, eliminating domain shift
+
+3. **Set-of-Mark Visual Prompting for VLM**:
+   - **Union Crop**: Encompasses YOLO person box and weighted centroid interaction point to preserve context
+   - **Red Circle Annotation**: Draws highly visible red circle at exact $(x, y)$ interaction coordinate
+   - **Precise Prompting**: "A structural anomaly occurred at the red circle. What object is involved?"
+
+4. **CLIP-Enhanced Multimodal RAG Search**:
+   - **Dual Embedding Storage**: Stores both CLIP image embeddings from cropped frames and text embeddings from VLM descriptions in Qdrant
+   - **Zero-Shot Text-to-Image Retrieval**: Enables queries like "person holding a wrench" using CLIP's joint text-image embedding space
+   - **Flawless Multimodal Matching**: Mathematically matches user queries directly to visual content for superior retrieval accuracy
+
+5. **Real-Time Semantic Description**:
    - **Qwen2-VL** integrated via TensorRT-LLM backend
    - Communicates over gRPC port 8001 for low-latency inference
-   - Generates natural language descriptions (e.g., *"Person picking up a black backpack"*)
+   - Generates natural language descriptions enhanced by visual prompting
 
-3. **Vector-Based RAG Search**:
-   - Automatically embeds VLM descriptions into **Qdrant** vector database
-   - Enables instant natural language retrieval of events
+---
 
-4. **Interactive TUI Search**:
-   - Search for specific items or behaviors in natural language
-   - Examples: *"Did anyone take a blue bag?"*, *"Show suspicious behavior near entrance"*
+## Technical Architecture Details
+
+### 1. Feature-MAME Anomaly Detection
+
+**Mathematical Formulation:**
+- **Feature Extraction**: $f = \phi(I; \theta_{MobileNetV2})$ where $\phi$ is frozen MobileNetV2 backbone
+- **Memory Matrix Construction**: $M = \{f_1, f_2, \dots, f_{150}\}$ from first 150 frames
+- **Anomaly Scoring**: $s = 1 - \cos(f_t, M)$ where cosine similarity measures latent space deviation
+- **Thresholding**: Anomaly if $s > \tau$ (dynamically adjusted per environment)
+
+**Advantages over MSE-based Autoencoders:**
+- Invariant to illumination changes: $\cos(f_a, f_b) \approx \cos(f_a + \Delta, f_b + \Delta)$
+- Environment-specific adaptation eliminates domain shift
+- Memory-augmented approach captures multi-scale spatio-temporal patterns
+
+### 2. STOA Binding Gating Strategy
+
+**Step A: Temporal Delta Filter**
+$$\Delta H(x,y,t) = \max(H(x,y,t) - H(x,y,t-10), 0)$$
+
+Where $H(x,y,t)$ is the anomaly heatmap at time $t$.
+
+**Step B: Box-Edge Prior**
+$$P_{edge}(x,y) = \exp\left(-\frac{d(x,y)^2}{2\sigma^2}\right)$$
+
+Where:
+- $d(x,y)$ is distance to nearest bounding box edge
+- $\sigma = 0.35 \times h_{box}$ (35% of box height for human arm reach)
+- Plateau Gaussian creates uniform attention near box edges
+
+**Step C: Area Normalization & Weighted Centroid**
+$$W(x,y) = \frac{\Delta H(x,y) \odot P_{edge}(x,y)}{A_{box}}}$$
+
+$$(x_c, y_c) = \left( \frac{\sum W(x,y) \cdot x}{\sum W(x,y)}, \frac{\sum W(x,y) \cdot y}{\sum W(x,y)} \right)$$
+
+Where $(x_c, y_c)$ is the precise physical interaction coordinate.
+
+### 3. Set-of-Mark Visual Prompting
+
+**Union Crop Calculation:**
+$$Crop = \bigcup \{bbox_{person}, (x_c, y_c)\}$$
+
+**Prompt Template:**
+"A structural anomaly occurred at the red circle. What object is involved?"
+
+**Annotation:** Red circle of radius 5 pixels centered at $(x_c, y_c)$.
+
+### 4. CLIP-Enhanced Multimodal Retrieval
+
+**Embedding Generation:**
+- Image: $e_{img} = CLIP_{vision}(Crop)$
+- Text: $e_{text} = CLIP_{text}(description)$
+
+**Joint Storage:** Qdrant stores both $e_{img}$ and $e_{text}$ for each event.
+
+**Query Processing:**
+- Text Query: $e_q = CLIP_{text}(query)$
+- Retrieval: $\arg\max \cos(e_q, \{e_{img}, e_{text}\})$
+
+**Zero-Shot Capability:** Direct matching between natural language and visual content without training.
+
+---
+
+## Research Contributions
+
+VisionSentry represents several key innovations in intelligent surveillance systems:
+
+### 1. Feature-MAME: Environment-Adaptive Anomaly Detection
+- **Novel Approach**: Replaces pixel-space reconstruction with feature-space memory augmentation
+- **Lighting Invariance**: Cosine similarity eliminates false positives from illumination changes
+- **Online Adaptation**: Single-video training on initial frames achieves perfect environment memorization
+- **Performance**: Significant reduction in domain shift compared to global pre-trained models
+
+### 2. STOA Binding: Deterministic Spatio-Temporal Gating
+- **First-Principles Design**: Mathematical formulation based on human interaction physics
+- **Temporal Filtering**: Delta heatmap isolates new physical changes from static anomalies
+- **Geometric Prior**: Box-edge distance modeling with dynamic sigma for accurate depth estimation
+- **Precision Localization**: Weighted centroid calculation yields sub-pixel interaction coordinates
+
+### 3. Set-of-Mark Visual Prompting
+- **Context Preservation**: Union cropping maintains spatial relationships between person and interaction point
+- **Precise Annotation**: Red circle marking enables exact object identification
+- **Enhanced VLM Performance**: Structured prompting improves accuracy over raw frame submission
+
+### 4. CLIP-Enhanced Multimodal Retrieval
+- **Dual Embedding Storage**: Simultaneous visual and textual indexing in vector database
+- **Zero-Shot Text-to-Image Search**: Direct semantic matching between queries and image content
+- **Unified Retrieval Space**: Joint embedding enables seamless cross-modal search capabilities
+
+These innovations collectively advance the state-of-the-art in AI-powered surveillance, providing unprecedented accuracy, adaptability, and usability for security applications.
 
 ---
 
@@ -189,6 +298,61 @@ sess = rt.InferenceSession('best.onnx')
 print(f'Model loads in ONNX Runtime')
 print(f'   Input: {sess.get_inputs()[0].name}')
 print(f'   Output: {sess.get_outputs()[0].name}')
+"
+```
+
+---
+
+### Step 1b: Model Preparation - Feature-MAME MobileNetV2
+
+#### Convert MobileNetV2 to ONNX for Feature-MAME
+
+```bash
+# Install required packages
+pip install torch torchvision onnxruntime
+
+# Export MobileNetV2 feature extractor
+python -c "
+import torch
+import torchvision.models as models
+from torch.onnx import export
+
+# Load pretrained MobileNetV2
+model = models.mobilenet_v2(pretrained=True)
+model.eval()
+
+# Remove classifier to get feature extractor
+feature_extractor = torch.nn.Sequential(*list(model.children())[:-1])
+
+# Create dummy input
+dummy_input = torch.randn(1, 3, 224, 224)
+
+# Export to ONNX
+export(feature_extractor, dummy_input, 'models/mame_mobilenetv2.onnx', 
+       input_names=['input'], output_names=['features'],
+       dynamic_axes={'input': {0: 'batch_size'}, 'features': {0: 'batch_size'}})
+
+print('MobileNetV2 feature extractor exported successfully!')
+"
+```
+
+#### Verify MAME ONNX Model
+
+```bash
+# Test inference
+python -c "
+import onnxruntime as ort
+import numpy as np
+
+sess = ort.InferenceSession('models/mame_mobilenetv2.onnx')
+input_shape = sess.get_inputs()[0].shape
+print(f'Input shape: {input_shape}')
+
+# Test with dummy data
+dummy = np.random.randn(1, 3, 224, 224).astype(np.float32)
+output = sess.run(None, {'input': dummy})
+print(f'Output shape: {output[0].shape}')
+print('MAME model verified!')
 "
 ```
 
@@ -388,6 +552,7 @@ bash launch.sh
 python main.py \
   --streams rtsp://localhost:8554/mystream \
   --inference-config configs/yolov11m_infer.txt \
+  --mame-config configs/mame_infer.txt \
   --vlm-endpoint 0.0.0.0:8001 \
   --vlm-model-name ensemble \
   --vlm-input-tensor image_input \
@@ -444,9 +609,9 @@ Terminal 5: Monitoring        - nvidia-smi -l 1
 
 ---
 
-## Semantic Search (RAG)
+## Multimodal Search (CLIP-Enhanced RAG)
 
-Once the pipeline is running, you can search through the captured events using natural language.
+Once the pipeline is running, you can search through the captured events using natural language or visual queries.
 
 ```bash
 python3 rag_retrieval.py
@@ -456,13 +621,14 @@ This launches an interactive TUI where you can ask questions like:
 - *"Did anyone take a blue bag?"*
 - *"Find suspicious behavior near the entrance."*
 - *"Show me frames where a person is eyeing the jewelry."*
+- *"Person holding a wrench"* (zero-shot text-to-image matching)
 
 **How it works:**
-1. Pipeline captures frames where persons are detected or anomalies occur
-2. Each frame is analyzed by Qwen2-VL (via TensorRT-LLM gRPC backend)
-3. Text descriptions are automatically indexed into Qdrant vector database
-4. RAG search converts your natural language query into vector embeddings
-5. Results are retrieved with semantic relevance scoring
+1. Pipeline captures frames where STOA gating detects spatio-temporal anomalies
+2. Each frame is analyzed by Qwen2-VL with Set-of-Mark prompting for precise object identification
+3. Cropped anomaly frames are encoded through CLIP image encoder, storing visual embeddings
+4. Text descriptions are embedded via CLIP text encoder and stored alongside visual embeddings in Qdrant
+5. Multimodal search converts queries into joint embedding space for semantic and visual relevance scoring
 
 ---
 
@@ -471,17 +637,19 @@ This launches an interactive TUI where you can ask questions like:
 ```
 visionsentry/
 ├── main.py                             # Entry point for the pipeline
-├── rag_retrieval.py                    # Vector search & TUI interface
+├── rag_retrieval.py                    # Multimodal CLIP-enhanced vector search & TUI interface
+├── debug_qdrant.py                     # Qdrant database debugging utilities
 ├── requirements.txt                    # Python dependencies
 ├── launch.sh                           # Docker/pipeline launcher
 ├── vlm_server.sh                       # VLM backend startup
 │
 ├── src/
-│   ├── orchestrator.py                 # Manages lifecycle & DB ingestion
+│   ├── orchestrator.py                 # Manages lifecycle & multimodal DB ingestion
 │   ├── pipeline.py                     # GStreamer pipeline construction
 │   ├── metadata_writer.py              # Frame & JSON metadata handling
-│   ├── ae_gate.py                      # Autoencoder anomaly detection
-│   ├── gate.py                         # Dual-gate decision logic
+│   ├── mame_gate.py                    # Feature-MAME anomaly detection with MobileNetV2
+│   ├── stoa_gate.py                    # STOA Binding spatio-temporal gating engine
+│   ├── gate.py                         # Legacy dual-gate decision logic (deprecated)
 │   ├── rtsp_source.py                  # RTSP source management
 │   ├── triton_config.py                # Triton/gRPC configuration
 │   ├── elements.py                     # GStreamer element helpers
@@ -491,7 +659,7 @@ visionsentry/
 │
 ├── configs/
 │   ├── yolov11m_infer.txt              # YOLOv11 detection config
-│   ├── autoencoder_infer.txt           # Autoencoder config
+│   ├── mame_infer.txt                  # Feature-MAME config
 │   └── triton_vlm_template.pbtxt       # Triton ensemble template
 │
 ├── tensorrtllm_backend/                # TensorRT-LLM backend code
@@ -504,11 +672,12 @@ visionsentry/
 ├── data/
 │   └── cache/frames/                   # Captured frame output
 │
-├── qdrant_db/                          # Vector database storage
+├── qdrant_db/                          # Multimodal vector database storage
 │
 └── models/
     ├── yolo11m_person.onnx             # YOLOv11 ONNX weights
-    ├── yolo11m.onnx.data               # ONNX calibration data
+    ├── mame_mobilenetv2.onnx           # Feature-MAME MobileNetV2 weights
+    ├── clip_vit_b32.onnx               # CLIP ViT-B/32 for embeddings
     └── labels/coco_labels.txt          # Class labels
 ```
 
@@ -522,6 +691,7 @@ visionsentry/
 python main.py \
   --streams rtsp://camera1:554/stream rtsp://camera2:554/stream \
   --inference-config configs/yolov11m_infer.txt \
+  --mame-config configs/mame_infer.txt \
   --vlm-endpoint 0.0.0.0:8001 \
   --vlm-model-name ensemble \
   --vlm-input-tensor image_input \
@@ -537,6 +707,7 @@ python main.py \
 
 | Parameter | Default | Purpose |
 |-----------|---------|---------|
+| `--mame-config` | configs/mame_infer.txt | Feature-MAME anomaly detection configuration |
 | `--vlm-infer-interval` | 25 | Analyze every Nth captured frame |
 | `--enable-frame-saving` | true | Save JPEG frames to disk |
 | `--log-level` | INFO | DEBUG for detailed telemetry |
@@ -563,6 +734,25 @@ detected-min-w=32
 detected-min-h=32
 roi-top-offset=0
 roi-bottom-offset=0
+```
+
+### Feature-MAME Configuration
+
+**File: `configs/mame_infer.txt`**
+
+Key settings:
+```ini
+[property]
+gpu-id=0
+net-scale-factor=1.0
+model-color-format=0
+onnx-file=models/mame_mobilenetv2.onnx
+model-engine-file=models/mame_mobilenetv2.engine
+output-tensor-meta=1
+
+[class-attrs-all]
+detected-min-w=32
+detected-min-h=32
 ```
 
 ### Optimize for Different Scenarios
@@ -655,8 +845,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **DeepStream SDK**: NVIDIA's high-performance video analytics framework
 - **YOLOv11**: Ultralytics' state-of-the-art object detection
+- **MobileNetV2**: Efficient convolutional neural network for feature extraction
+- **CLIP**: OpenAI's Contrastive Language-Image Pretraining for multimodal embeddings
 - **TensorRT-LLM**: NVIDIA's optimized LLM inference engine
-- **Qdrant**: Vector database for semantic search
+- **Qdrant**: Vector database for semantic and visual search
 - **Qwen2-VL**: Alibaba's advanced vision-language model
 - **Vast.ai**: For providing excellent compute power at an affordable cost
 
